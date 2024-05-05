@@ -406,6 +406,78 @@ function searchUser($conn)
 
 }
 
+function loadUserGroups($conn)
+{
+    global $data;
+    $id = isset($data) ? $data["id"] : $_POST["id"];
+    $txtSearch = isset($data) ? $data["txtSearch"] : $_POST["txtSearch"];
+    $sql = null;
+    if ($txtSearch == null) {
+        $sql = "SELECT
+        ug.group_id groupId,
+        g.group_name groupName,
+        g.group_image groupImage,
+        gm.message messageContent,
+        gm.message_date sent_at
+        FROM
+            user_groups ug
+        JOIN groupp g ON
+            ug.group_id = g.id
+        JOIN group_message gm ON
+            gm.group_id = g.id
+        JOIN(
+            SELECT
+                grm.id,
+                MAX(grm.message_date) AS max_sent_at
+            FROM
+                group_message grm
+            GROUP BY
+                grm.id
+        ) max_msg
+        ON
+            gm.id = max_msg.id AND gm.message_date = max_msg.max_sent_at
+        WHERE
+            ug.userId = '$id'";
+    } else {
+        $sql = "SELECT
+        ug.group_id groupId,
+        g.group_name groupName,
+        g.group_image groupImage,
+        gm.message messageContent,
+        gm.message_date sent_at
+        FROM
+            user_groups ug
+        JOIN groupp g ON
+            ug.group_id = g.id
+        JOIN group_message gm ON
+            gm.group_id = g.id
+        JOIN(
+            SELECT
+                grm.id,
+                MAX(grm.message_date) AS max_sent_at
+            FROM
+                group_message grm
+            GROUP BY
+                grm.id
+        ) max_msg
+        ON
+            gm.id = max_msg.id AND gm.message_date = max_msg.max_sent_at
+        WHERE
+            ug.userId = '$id' and g.group_name = '$$txtSearch'";
+
+    }
+    $convsersations = [];
+    $result = mysqli_query($conn, $sql);
+    if (mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $convsersations[] = $row;
+        }
+        echo json_encode(array("status" => 200, "data" => $convsersations));
+    } else {
+        echo json_encode(array("status" => 404, "data" => "Currently There is no Groups found."));
+    }
+
+}
 function LoadUserChats($conn)
 {
     global $data;
@@ -445,7 +517,7 @@ function LoadUserChats($conn)
     ON
         m.conversation_id = max_msg.conversation_id AND m.sent_at = max_msg.max_sent_at
     WHERE
-    c.participant_user1 = '$id' OR c.participant_user2 = '$id'";
+    c.participant_user1 = '$id' OR c.participant_user2 = '$id' ORDER BY m.sent_at desc";
     } else {
         $sql = "SELECT
     uc.id AS userConverId,
