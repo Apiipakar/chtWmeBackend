@@ -493,7 +493,20 @@ function LoadUserChats($conn)
         echo json_encode(array("status" => 404, "data" => "Currently There is no conversation found."));
     }
 }
+function deleteMessage($conn)
+{
+    global $data;
+    $id = isset($data) ? $data["messageId"] : $_POST["messageId"];
+    $sql = "DELETE FROM message WHERE  id = '$id'";
+    $deleteResult = mysqli_query($conn, $sql);
+    if (mysqli_affected_rows($conn) > 0) {
+        echo json_encode(array("status" => 200, "message" => "Message deleted successfully"));
+    } else {
+        echo json_encode(array("status" => 404, "message" => "Can't delete Message Duo to " . mysqli_error($conn)));
 
+    }
+
+}
 function getConversation($conn)
 {
     global $data;
@@ -513,6 +526,42 @@ function getConversation($conn)
         echo json_encode(array("status" => 404, "data" => "no conversation found"));
 
     }
+}
+
+function getFriendConversation($conn)
+{
+    global $data;
+    $friendId = isset($data) ? $data["friendId"] : $_POST["friendId"];
+    $currentUser = isset($data) ? $data["currentUser"] : $_POST["currentUser"];
+    $checkIfConversationExistSql = "SELECT *
+        FROM conversation
+        WHERE (participant_user1 = '$currentUser' AND participant_user2 = '$friendId')
+        OR (participant_user1 = '$friendId' AND participant_user2 = '$currentUser') ";
+    $oldConversation = [];
+    $checkConversationResult = mysqli_query($conn, $checkIfConversationExistSql);
+    if (mysqli_num_rows($checkConversationResult) > 0) {
+        while ($row = mysqli_fetch_assoc($checkConversationResult)) {
+            $oldConversation[] = $row;
+        }
+        $conversationId = $oldConversation[0]['id'];
+        $sql = "select m.id messageId, u.id senderId, u2.id receiverId, u.fullname sender, u2.fullname receiver, u.profile_image senderProfileImage, u2.profile_image receiverProfileImage,m.image messageImage, m.sent_at, m.message_content, m.seen isSean from message m
+            join user u on u.id = m.sender_id
+            join user u2 on u2.id = m.receiver_id
+            join conversation c on c.id = m.conversation_id where conversation_id = '$conversationId'";
+        $result = mysqli_query($conn, $sql);
+        $conversation = [];
+        if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $conversation[] = $row;
+            }
+            echo json_encode(array("status" => 200, "data" => $conversation));
+        } else {
+            echo json_encode(array("status" => 404, "data" => "no conversation found"));
+        }
+    } else {
+        echo json_encode(array("status" => 404, "data" => "No conversation found"));
+    }
+
 }
 //get baaned users
 function getBannedUsers($conn)
@@ -542,7 +591,7 @@ function updateOnline($conn)
     $result = mysqli_query($conn, $sql);
     if ($result) {
 
-        echo json_encode(array("status" => 200, "message" => "you are Online"));
+        echo json_encode(array("status" => 200, "message" => "Online status updated"));
     } else {
         echo json_encode(array("status" => 404, "data" => "No record found."));
     }
