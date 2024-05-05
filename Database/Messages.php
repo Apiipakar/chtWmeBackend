@@ -30,7 +30,7 @@ if (isset($_POST['messageContent'])) {
                 $uniqueImageName = uniqid("IMG-") . $_FILES["image"]["name"];
                 $target_file = $targetDirectory . basename($uniqueImageName);
                 if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-                    $massegeSql = "INSERT INTO `message` (`conversation_id`, `sender_id`, `receiver_id`, `message_content`, `image`) VALUES ('$conversationID', '$sender', '$receiver', '$message',' $uniqueImageName')";
+                    $massegeSql = "INSERT INTO `message` (`conversation_id`, `sender_id`, `receiver_id`, `message_content`, `image`) VALUES ('$conversationID', '$sender', '$receiver', '$message','$uniqueImageName')";
                     $messageResult = mysqli_query($conn, $massegeSql);
                     if ($messageResult) {
                         echo json_encode(array("status" => 200, "message" => "Only message with image sented successfully"));
@@ -59,7 +59,7 @@ if (isset($_POST['messageContent'])) {
                         $last_id = mysqli_insert_id($conn);
                         $mkUserConverstionSql = "INSERT INTO `user_conversation` (`userId`,`conversation_id`) VALUES ('$sender','$last_id')";
                         $userConvResult = mysqli_query($conn, $mkUserConverstionSql);
-                        $massegeSql = "INSERT INTO `message` (`conversation_id`, `sender_id`, `receiver_id`, `message_content`, `image`) VALUES ('$convId', '$sender', '$receiver', '$message',' $uniqueImageName')";
+                        $massegeSql = "INSERT INTO `message` (`conversation_id`, `sender_id`, `receiver_id`, `message_content`, `image`) VALUES ('$convId', '$sender', '$receiver', '$message','$uniqueImageName')";
                         $messageResult = mysqli_query($conn, $massegeSql);
                         if ($messageResult) {
                             echo json_encode(array("status" => 200, "message" => "Conversation created and message with image sented successfully"));
@@ -94,7 +94,7 @@ if (isset($_POST['messageContent'])) {
             $uniqueImageName = uniqid("IMG-") . $_FILES["image"]["name"];
             $target_file = $targetDirectory . basename($uniqueImageName);
             if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-                $massegeSql = "INSERT INTO `message` (`conversation_id`, `sender_id`, `receiver_id`, `message_content`, `image`) VALUES ('$conversationID', '$sender', '$receiver', '$message',' $uniqueImageName')";
+                $massegeSql = "INSERT INTO `message` (`conversation_id`, `sender_id`, `receiver_id`, `message_content`, `image`) VALUES ('$conversationID', '$sender', '$receiver', '$message','$uniqueImageName')";
                 $messageResult = mysqli_query($conn, $massegeSql);
                 if ($messageResult) {
                     echo json_encode(array("status" => 200, "message" => "Only message with image sented successfully"));

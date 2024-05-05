@@ -583,7 +583,7 @@ function getConversation($conn)
 {
     global $data;
     $id = isset($data) ? $data["id"] : $_POST["id"];
-    $sql = "select m.id messageId, u.id senderId, u2.id receiverId, u.fullname sender, u2.fullname receiver, u.profile_image senderProfileImage, u2.profile_image receiverProfileImage,m.image messageImage, m.sent_at, m.message_content, m.seen isSean from message m
+    $sql = "select m.id messageId, u.id senderId, u2.id receiverId, u.fullname sender, u2.fullname receiver, u.profile_image senderProfileImage, u2.profile_image receiverProfileImage, m.image messageImage, m.sent_at, m.message_content, m.seen isSean from message m
             join user u on u.id = m.sender_id
             join user u2 on u2.id = m.receiver_id
             join conversation c on c.id = m.conversation_id where conversation_id = '$id'";
